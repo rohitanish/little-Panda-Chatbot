@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panda Bot - Little Panda Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .demo-content {
+            text-align: center;
+            z-index: 1;
+        }
+
+        .demo-content h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            opacity: 0.9;
+            color: #333;
+        }
+
+        .demo-content p {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            color: #555;
+        }
+
+        /* Chatbot Widget Styles */
+        .chatbot-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .chat-button {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+            font-size: 24px;
+        }
+
+        .chat-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(255, 107, 107, 0.6);
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4);
+            }
+            50% {
+                box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4), 0 0 0 10px rgba(255, 107, 107, 0.1);
+            }
+            100% {
+                box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4);
+            }
+        }
+
+        .chat-window {
+            position: absolute;
+            bottom: 80px;
+            right: 0;
+            width: 380px;
+            height: 650px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .chat-window.active {
+            display: flex;
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .chat-header-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .bot-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 20px;
+        }
+
+        .bot-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .bot-status {
+            font-size: 12px;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #00b894;
+            margin-right: 6px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            max-height: calc(650px - 160px);
+        }
+
+        .message {
+            margin-bottom: 16px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-content {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .message.bot .message-content {
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .message.user .message-content {
+            background: #ff6b6b;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            margin: 0 8px;
+            flex-shrink: 0;
+        }
+
+        .message.bot .message-avatar {
+            background: #ff6b6b;
+            color: white;
+            font-size: 16px;
+        }
+
+        .message.user .message-avatar {
+            background: #ddd;
+            color: #666;
+        }
+
+        /* Button Styles */
+        .message-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+            margin-left: 36px;
+            max-width: 80%;
+        }
+
+        .chat-button-option {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .chat-button-option:hover {
+            background: #ff5252;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+        }
+
+        .chat-button-option:active {
+            transform: translateY(0);
+        }
+
+        .chat-button-option.secondary {
+            background: #f8f9fa;
+            color: #ff6b6b;
+            border: 1px solid #e9ecef;
+        }
+
+        .chat-button-option.secondary:hover {
+            background: #e9ecef;
+            color: #ff5252;
+        }
+
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            padding: 12px 16px;
+            background: white;
+            border-radius: 18px;
+            border-bottom-left-radius: 4px;
+            margin: 0 8px 16px 36px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #999;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.5;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+
+        .chat-input {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #eee;
+        }
+
+        .input-container {
+            display: flex;
+            align-items: center;
+            background: #f8f9fa;
+            border-radius: 24px;
+            padding: 4px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            border: none;
+            background: none;
+            padding: 12px 16px;
+            font-size: 14px;
+            outline: none;
+            border-radius: 20px;
+        }
+
+        .send-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #ff6b6b;
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .send-btn:hover {
+            background: #ff5252;
+        }
+
+        .send-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .api-status {
+            position: absolute;
+            top: 8px;
+            right: 40px;
+            font-size: 10px;
+            opacity: 0.8;
+        }
+
+        .api-status.online {
+            color: #00b894;
+        }
+
+        .api-status.offline {
+            color: #ff6b6b;
+        }
+
+        @media (max-width: 480px) {
+            .chat-window {
+                width: calc(100vw - 40px);
+                height: 70vh;
+                bottom: 80px;
+                right: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-content">
+        <h1>Little Panda 🐼</h1>
+        <p>Chat with Panda Bot for assistance!</p>
+    </div>
+
+    <div class="chatbot-widget">
+        <button class="chat-button" id="chatButton">
+            🐼
+        </button>
+
+        <div class="chat-window" id="chatWindow">
+            <div class="chat-header">
+                <div class="chat-header-info">
+                    <div class="bot-avatar">🐼</div>
+                    <div class="bot-info">
+                        <h3>Panda Bot</h3>
+                        <div class="bot-status">
+                            <div class="status-dot"></div>
+                            Online
+                        </div>
+                    </div>
+                </div>
+                <div class="api-status" id="apiStatus">Ready</div>
+                <button class="close-btn" id="closeBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot">
+                    <div class="message-avatar">🐼</div>
+                    <div class="message-content">
+                        Hello! I am Panda Bot 🐼 How are you today?
+                    </div>
+                </div>
+            </div>
+
+            <div class="typing-indicator" id="typingIndicator">
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
+
+            <div class="chat-input">
+                <div class="input-container">
+                    <input type="text" id="messageInput" placeholder="Type your message..." maxlength="500">
+                    <button class="send-btn" id="sendBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class PandaBot {
+            constructor() {
+                this.chatButton = document.getElementById('chatButton');
+                this.chatWindow = document.getElementById('chatWindow');
+                this.closeBtn = document.getElementById('closeBtn');
+                this.messageInput = document.getElementById('messageInput');
+                this.sendBtn = document.getElementById('sendBtn');
+                this.chatMessages = document.getElementById('chatMessages');
+                this.typingIndicator = document.getElementById('typingIndicator');
+                this.apiStatus = document.getElementById('apiStatus');
+                
+                this.isOpen = false;
+                this.currentStep = 'greeting'; // greeting -> name -> phone -> main_menu
+                this.userName = '';
+                this.userPhone = '';
+                
+                // Google Sheets API URL - REPLACE WITH YOUR ACTUAL GOOGLE SHEETS API URL
+                this.googleSheetsURL = 'https://script.google.com/macros/s/AKfycbwedtU9zuNLNOBFGq2DEid5uqcAUZTzdoxtQ6LeEcS13aEQrm_n93AxL9PP0vLuv95r6w/exec?gid=0';
+                
+                this.init();
+            }
+
+            init() {
+                this.chatButton.addEventListener('click', () => this.toggleChat());
+                this.closeBtn.addEventListener('click', () => this.closeChat());
+                this.sendBtn.addEventListener('click', () => this.sendMessage());
+                this.messageInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.sendMessage();
+                    }
+                });
+                this.messageInput.addEventListener('input', () => this.updateSendButton());
+                
+                // Handle button clicks
+                this.chatMessages.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('chat-button-option')) {
+                        this.handleButtonClick(e.target.dataset.action);
+                    }
+                });
+                
+                // Close chat when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (this.isOpen && !this.chatWindow.contains(e.target) && !this.chatButton.contains(e.target)) {
+                        this.closeChat();
+                    }
+                });
+            }
+
+            toggleChat() {
+                if (this.isOpen) {
+                    this.closeChat();
+                } else {
+                    this.openChat();
+                }
+            }
+
+            openChat() {
+                this.chatWindow.classList.add('active');
+                this.isOpen = true;
+                this.messageInput.focus();
+            }
+
+            closeChat() {
+                this.chatWindow.classList.remove('active');
+                this.isOpen = false;
+            }
+
+            updateSendButton() {
+                const hasText = this.messageInput.value.trim().length > 0;
+                this.sendBtn.disabled = !hasText;
+            }
+
+            async sendMessage() {
+                const message = this.messageInput.value.trim();
+                if (!message) return;
+
+                // Add user message
+                this.addMessage(message, 'user');
+                this.messageInput.value = '';
+                this.updateSendButton();
+
+                // Show typing indicator
+                this.showTyping();
+
+                // Process message based on current step
+                await this.processMessage(message);
+                
+                this.hideTyping();
+            }
+
+            async processMessage(message) {
+                await this.delay(1000); // Simulate thinking time
+
+                switch (this.currentStep) {
+                    case 'greeting':
+                        this.currentStep = 'name';
+                        this.addMessage("Nice to meet you! 😊 What's your name?", 'bot');
+                        break;
+                    
+                    case 'name':
+                        this.userName = message;
+                        this.currentStep = 'phone';
+                        this.addMessage(`Nice to meet you, ${this.userName}! 🐼 Could you please share your phone number so I can assist you better?`, 'bot');
+                        break;
+                    
+                    case 'phone':
+                        this.userPhone = message;
+                        await this.saveToGoogleSheets();
+                        this.currentStep = 'main_menu';
+                        this.showMainMenu();
+                        break;
+                    
+                    case 'main_menu':
+                        // Handle general conversation in main menu
+                        this.handleGeneralMessage(message);
+                        break;
+                }
+            }
+
+            async saveToGoogleSheets() {
+                try {
+                    this.updateApiStatus('Saving...');
+                    
+                    const response = await fetch(this.googleSheetsURL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            name: this.userName,
+                            phone: this.userPhone,
+                            timestamp: new Date().toISOString()
+                        })
+                    });
+
+                    if (response.ok) {
+                        this.updateApiStatus('Saved ✓');
+                        console.log('Data saved to Google Sheets successfully');
+                    } else {
+                        this.updateApiStatus('Save Error');
+                        console.error('Failed to save to Google Sheets');
+                    }
+                } catch (error) {
+                    this.updateApiStatus('Save Error');
+                    console.error('Error saving to Google Sheets:', error);
+                }
+                
+                // Reset status after 3 seconds
+                setTimeout(() => {
+                    this.updateApiStatus('Online');
+                }, 3000);
+            }
+
+            showMainMenu() {
+                const welcomeMessage = `Hello ${this.userName}! **Rooooar!** Hi there! I'm **Cubbot**, your friendly guide to Little Panda 🐼. How can I help you today?`;
+                
+                const buttons = [
+                    { text: "About Us", action: "about-us", type: "primary" },
+                    { text: "Programs and Curriculum", action: "programs", type: "primary" },
+                    { text: "Admission Enquiry", action: "admission", type: "primary" },
+                    { text: "Contact Us", action: "contact", type: "primary" },
+                    { text: "FAQ", action: "faq", type: "secondary" }
+                ];
+
+                this.addMessage(welcomeMessage, 'bot', buttons);
+            }
+
+            handleButtonClick(action) {
+                switch (action) {
+                    case 'about-us':
+                        this.addMessage(`Great choice, ${this.userName}! Little Panda is a premier early childhood education center dedicated to nurturing young minds through play-based learning and creative exploration. We believe every child is unique and deserves personalized attention to reach their full potential. 🌟`, 'bot', [
+                            { text: "Our Mission", action: "mission" },
+                            { text: "Our Values", action: "values" },
+                            { text: "Back to Menu", action: "main-menu", type: "secondary" }
+                        ]);
+                        break;
+                    
+                    case 'programs':
+                        this.addMessage(`Our comprehensive programs are designed for different age groups, ${this.userName}! We offer structured learning experiences that combine academics with creative activities, outdoor play, and social development. 📚🎨`, 'bot', [
+                            { text: "Toddler Program (1-2 years)", action: "toddler-program" },
+                            { text: "Preschool (3-4 years)", action: "preschool-program" },
+                            { text: "Pre-K (4-5 years)", action: "prek-program" },
+                            { text: "Back to Menu", action: "main-menu", type: "secondary" }
+                        ]);
+                        break;
+                    
+                    case 'admission':
+                        this.addMessage(`I'd be happy to help you with the admission process, ${this.userName}! Our admissions team can provide detailed information about enrollment, requirements, and available spots. 🎓`, 'bot', [
+                            { text: "Enrollment Process", action: "enrollment" },
+                            { text: "Application Form", action: "application" },
+                            { text: "Schedule Visit", action: "visit" },
+                            { text: "Back to Menu", action: "main-menu", type: "secondary" }
+                        ]);
+                        break;
+                    
+                    case 'contact':
+                        this.addMessage(`Here's how you can reach us, ${this.userName}! 📞\n\n📍 Address: [Your Address Here]\n📞 Phone: [Your Phone Number]\n📧 Email: info@littlepanda.com\n🕒 Hours: Mon-Fri 7:00 AM - 6:00 PM`, 'bot', [
+                            { text: "Call Now", action: "call-now" },
+                            { text: "Send Email", action: "send-email" },
+                            { text: "Get Directions", action: "directions" },
+                            { text: "Back to Menu", action: "main-menu", type: "secondary" }
+                        ]);
+                        break;
+                    
+                    case 'faq':
+                        this.addMessage(`Here are some frequently asked questions, ${this.userName}! 🤔`, 'bot', [
+                            { text: "What are your hours?", action: "hours-faq" },
+                            { text: "What's included in tuition?", action: "tuition-faq" },
+                            { text: "Safety protocols?", action: "safety-faq" },
+                            { text: "Meal programs?", action: "meal-faq" },
+                            { text: "Back to Menu", action: "main-menu", type: "secondary" }
+                        ]);
+                        break;
+                    
+                    case 'main-menu':
+                        this.showMainMenu();
+                        break;
+                    
+                    // Additional handlers for sub-menu items
+                    case 'mission':
+                        this.addMessage("Our mission is to provide a safe, nurturing, and stimulating environment where children can explore, learn, and grow while developing a lifelong love of learning. 🎯", 'bot', [
+                            { text: "Back to About Us", action: "about-us", type: "secondary" }
+                        ]);
+                        break;
+                    
+                    case 'values':
+                        this.addMessage("Our core values include respect, creativity, inclusivity, excellence, and family partnership. We believe in celebrating each child's uniqueness while building a strong community. 💝", 'bot', [
+                            { text: "Back to About Us", action: "about-us", type: "secondary" }
+                        ]);
+                        break;
+                    
+                    case 'enrollment':
+                        this.addMessage("Our enrollment process is simple! We start with a tour, followed by an application, meet & greet session, and then enrollment completion. We're here to guide you every step of the way! 📝", 'bot', [
+                            { text: "Schedule Tour", action: "visit" },
+                            { text: "Back to Admission", action: "admission", type: "secondary" }
+                        ]);
+                        break;
+                    
+                    case 'hours-faq':
+                        this.addMessage("We're open Monday through Friday from 7:00 AM to 6:00 PM. We also offer extended care options for working parents. 🕐", 'bot', [
+                            { text: "Extended Care Info", action: "extended-care" },
+                            { text: "Back to FAQ", action: "faq", type: "secondary" }
+                        ]);
+                        break;
+                    
+                    default:
+                        this.addMessage(`I'm still working on that section, ${this.userName}! Our team will be happy to provide more details. Is there anything else I can help you with? 🤖`, 'bot', [
+                            { text: "Back to Menu", action: "main-menu", type: "secondary" }
+                        ]);
+                }
+            }
+
+            handleGeneralMessage(message) {
+                const lowerMessage = message.toLowerCase();
+                let response = `Thanks for your message, ${this.userName}! `;
+
+                if (lowerMessage.includes('thank')) {
+                    response += "You're very welcome! I'm happy to help. Is there anything else you'd like to know about Little Panda? 😊";
+                } else if (lowerMessage.includes('bye') || lowerMessage.includes('goodbye')) {
+                    response += "Goodbye! Feel free to reach out anytime. Have a wonderful day! 🐼👋";
+                } else if (lowerMessage.includes('help')) {
+                    response += "I'm here to help! You can ask me about our programs, admission process, or anything else about Little Panda.";
+                } else {
+                    response += "I understand. Let me help you find the information you need!";
+                }
+
+                const buttons = [
+                    { text: "About Us", action: "about-us" },
+                    { text: "Programs", action: "programs" },
+                    { text: "Admission", action: "admission" },
+                    { text: "Contact", action: "contact", type: "secondary" }
+                ];
+
+                this.addMessage(response, 'bot', buttons);
+            }
+
+            addMessage(content, sender, buttons = null) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender}`;
+                
+                const avatar = document.createElement('div');
+                avatar.className = 'message-avatar';
+                avatar.textContent = sender === 'bot' ? '🐼' : '👤';
+                
+                const messageContent = document.createElement('div');
+                messageContent.className = 'message-content';
+                messageContent.innerHTML = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                
+                messageDiv.appendChild(avatar);
+                messageDiv.appendChild(messageContent);
+                
+                this.chatMessages.appendChild(messageDiv);
+                
+                // Add buttons below bot message if provided
+                if (sender === 'bot' && buttons && buttons.length > 0) {
+                    const buttonsContainer = document.createElement('div');
+                    buttonsContainer.className = 'message-buttons';
+                    
+                    buttons.forEach(button => {
+                        const btn = document.createElement('button');
+                        btn.className = `chat-button-option ${button.type === 'secondary' ? 'secondary' : ''}`;
+                        btn.textContent = button.text;
+                        btn.dataset.action = button.action;
+                        buttonsContainer.appendChild(btn);
+                    });
+                    
+                    this.chatMessages.appendChild(buttonsContainer);
+                }
+                
+                this.scrollToBottom();
+            }
+
+            showTyping() {
+                this.typingIndicator.style.display = 'flex';
+                this.scrollToBottom();
+            }
+
+            hideTyping() {
+                this.typingIndicator.style.display = 'none';
+            }
+
+            scrollToBottom() {
+                setTimeout(() => {
+                    this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+                }, 100);
+            }
+
+            updateApiStatus(status) {
+                this.apiStatus.textContent = status;
+            }
+
+            delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+        }
+
+        // Initialize the chatbot when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new PandaBot();
+        });
+    </script>
+</body>
+</html>
