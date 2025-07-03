@@ -571,16 +571,14 @@
                 try {
                     this.updateApiStatus('Saving...');
                     
+                    const formData = new FormData();
+                    formData.append('name', this.userName);
+                    formData.append('phone', this.userPhone);
+                    formData.append('timestamp', new Date().toISOString());
+                    
                     const response = await fetch(this.googleSheetsURL, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            name: this.userName,
-                            phone: this.userPhone,
-                            timestamp: new Date().toISOString()
-                        })
+                        body: formData
                     });
 
                     if (response.ok) {
