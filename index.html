@@ -820,20 +820,22 @@
                 }, 3000);
             }
 
-            async showMainMenu() {
-                await this.addMessageWithDelay(`Hello ${this.userName}! I'm here to help you learn about Little Panda. 🐼`, 'bot');
-                await this.delay(2000);
-                
-                const buttons = [
-                    { text: "About Us", action: "about-us", type: "primary" },
-                    { text: "Programs & Curriculum", action: "programs", type: "primary" },
-                    { text: "Admission Enquiry", action: "admission", type: "primary" },
-                    { text: "Contact Us", action: "contact", type: "primary" },
-                    { text: "FAQ", action: "faq", type: "primary" }
-                ];
+           async showMainMenu(isReturning = false) {
+    if (!isReturning) {
+        await this.addMessageWithDelay(`Hello ${this.userName}! I'm here to help you learn about Little Panda. 🐼`, 'bot');
+        await this.delay(800);
+    }
+    
+    const buttons = [
+        { text: "About Us", action: "about-us", type: "primary" },
+        { text: "Programs & Curriculum", action: "programs", type: "primary" },
+        { text: "Admission Enquiry", action: "admission", type: "primary" },
+        { text: "Contact Us", action: "contact", type: "primary" },
+        { text: "FAQ", action: "faq", type: "primary" }
+    ];
 
-                await this.addMessageWithDelay("What would you like to know about?", 'bot', buttons);
-            }
+    await this.addMessageWithDelay("What would you like to know about?", 'bot', buttons);
+}
 
             fadeOutButtons() {
                 const existingButtons = this.chatMessages.querySelectorAll('.message-buttons');
@@ -847,7 +849,8 @@
 
             async handleButtonClick(action) {
                 this.fadeOutButtons();
-                
+                // Show what the user clicked
+                this.addMessage(action.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()), 'user');
                 // Show typing indicator
                 this.showTyping();
                 await this.delay(800);
@@ -855,8 +858,8 @@
 
                 switch (action) {
                     case 'about-us':
-                        await this.addMessageWithDelay(`Great choice, ${this.userName}! 🌟`, 'bot');
-                        await this.delay(800);
+                        // await this.addMessageWithDelay(`Great choice, ${this.userName}! 🌟`, 'bot');
+                        // await this.delay(800);
                         await this.addMessageWithDelay("Little Panda is a premier early childhood education center dedicated to nurturing young minds.", 'bot');
                         await this.delay(800);
                         
@@ -934,7 +937,7 @@
                         break;
                     
                     case 'main-menu':
-                        this.showMainMenu();
+                        this.showMainMenu(true);
                         break;
                     
                     // Additional handlers for sub-menu items
