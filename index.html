@@ -13,7 +13,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            background: linear-gradient(135deg, #4F9153 0%, #6FA86F 50%, #8FBD8F 100%);
             height: 100vh;
             display: flex;
             align-items: center;
@@ -51,32 +51,54 @@
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+            background: linear-gradient(135deg, #4F9153, #6FA86F);
             border: none;
             cursor: pointer;
-            box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4);
+            box-shadow: 0 4px 20px rgba(79, 145, 83, 0.4);
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
             animation: pulse 2s infinite;
             font-size: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chat-button::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+            transform: scale(0);
+            transition: transform 0.3s ease;
+        }
+
+        .chat-button:hover::before {
+            transform: scale(1);
         }
 
         .chat-button:hover {
             transform: scale(1.1);
-            box-shadow: 0 6px 25px rgba(255, 107, 107, 0.6);
+            box-shadow: 0 6px 25px rgba(79, 145, 83, 0.6);
+        }
+
+        .chat-button:active {
+            transform: scale(0.95);
         }
 
         @keyframes pulse {
             0% {
-                box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4);
+                box-shadow: 0 4px 20px rgba(79, 145, 83, 0.4);
             }
             50% {
-                box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4), 0 0 0 10px rgba(255, 107, 107, 0.1);
+                box-shadow: 0 4px 20px rgba(79, 145, 83, 0.4), 0 0 0 10px rgba(79, 145, 83, 0.1);
             }
             100% {
-                box-shadow: 0 4px 20px rgba(255, 107, 107, 0.4);
+                box-shadow: 0 4px 20px rgba(79, 145, 83, 0.4);
             }
         }
 
@@ -87,30 +109,46 @@
             width: 380px;
             height: 650px;
             background: white;
-            border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
             display: none;
             flex-direction: column;
             overflow: hidden;
-            transform: translateY(20px);
+            transform: translateY(30px) scale(0.95);
             opacity: 0;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .chat-window.active {
             display: flex;
-            transform: translateY(0);
+            transform: translateY(0) scale(1);
             opacity: 1;
         }
 
+        .chat-window.opening {
+            animation: slideInUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes slideInUp {
+            0% {
+                transform: translateY(30px) scale(0.95);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
         .chat-header {
-            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+            background: linear-gradient(135deg, #4F9153, #6FA86F);
             color: white;
             padding: 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             position: relative;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
         .chat-header-info {
@@ -119,36 +157,44 @@
         }
 
         .bot-avatar {
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.2);
             display: flex;
             align-items: center;
             justify-content: center;
             margin-right: 12px;
-            font-size: 20px;
+            font-size: 22px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
         }
 
         .bot-info h3 {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 600;
-            margin-bottom: 2px;
+            margin-bottom: 4px;
         }
 
         .bot-status {
-            font-size: 12px;
+            font-size: 13px;
             opacity: 0.9;
             display: flex;
             align-items: center;
         }
 
         .status-dot {
-            width: 6px;
-            height: 6px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
-            background: #00b894;
+            background: #00d4aa;
             margin-right: 6px;
+            animation: statusPulse 2s infinite;
+        }
+
+        @keyframes statusPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
         .close-btn {
@@ -156,27 +202,61 @@
             border: none;
             color: white;
             cursor: pointer;
-            padding: 4px;
-            border-radius: 4px;
-            transition: background 0.2s;
+            padding: 8px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .close-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
         }
 
         .chat-messages {
             flex: 1;
             padding: 20px;
             overflow-y: auto;
-            background: #f8f9fa;
+            background: linear-gradient(to bottom, #f8f9fa, #ffffff);
             max-height: calc(650px - 160px);
+            scroll-behavior: smooth;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #4F9153;
+            border-radius: 10px;
         }
 
         .message {
-            margin-bottom: 16px;
+            margin-bottom: 20px;
             display: flex;
             align-items: flex-start;
+            opacity: 0;
+            animation: messageSlideIn 0.5s ease forwards;
+        }
+
+        @keyframes messageSlideIn {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .message.user {
@@ -184,47 +264,82 @@
         }
 
         .message-content {
-            max-width: 80%;
-            padding: 12px 16px;
-            border-radius: 18px;
+            max-width: 75%;
+            padding: 14px 18px;
+            border-radius: 20px;
             font-size: 14px;
-            line-height: 1.4;
+            line-height: 1.5;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .message.bot .message-content {
             background: white;
             color: #333;
-            border-bottom-left-radius: 4px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-bottom-left-radius: 6px;
+            border: 1px solid #e9ecef;
         }
 
         .message.user .message-content {
-            background: #ff6b6b;
+            background: linear-gradient(135deg, #4F9153, #6FA86F);
             color: white;
-            border-bottom-right-radius: 4px;
+            border-bottom-right-radius: 6px;
         }
 
         .message-avatar {
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
-            margin: 0 8px;
+            font-size: 14px;
+            margin: 0 12px;
             flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .message.bot .message-avatar {
-            background: #ff6b6b;
+            background: linear-gradient(135deg, #4F9153, #6FA86F);
             color: white;
-            font-size: 16px;
+            font-size: 18px;
         }
 
         .message.user .message-avatar {
-            background: #ddd;
+            background: #e9ecef;
             color: #666;
+        }
+
+        /* Panda Image Styles */
+        .panda-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4F9153, #6FA86F);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin: 0 auto 20px;
+            box-shadow: 0 4px 20px rgba(79, 145, 83, 0.3);
+            animation: pandaBounce 2s infinite;
+        }
+
+        @keyframes pandaBounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .welcome-message {
+            text-align: center;
+            margin-bottom: 20px;
         }
 
         /* Button Styles */
@@ -232,27 +347,57 @@
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
-            margin-top: 12px;
-            margin-left: 36px;
-            max-width: 80%;
+            margin-top: 15px;
+            margin-left: 44px;
+            max-width: 75%;
+            opacity: 0;
+            animation: buttonsSlideIn 0.5s ease forwards 0.3s;
+        }
+
+        @keyframes buttonsSlideIn {
+            0% {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .chat-button-option {
-            background: #ff6b6b;
+            background: linear-gradient(135deg, #4F9153, #6FA86F);
             color: white;
             border: none;
-            padding: 10px 16px;
-            border-radius: 20px;
+            padding: 12px 18px;
+            border-radius: 25px;
             font-size: 13px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
             white-space: nowrap;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(79, 145, 83, 0.2);
+        }
+
+        .chat-button-option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .chat-button-option:hover::before {
+            left: 100%;
         }
 
         .chat-button-option:hover {
-            background: #ff5252;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 145, 83, 0.3);
         }
 
         .chat-button-option:active {
@@ -261,36 +406,37 @@
 
         .chat-button-option.secondary {
             background: #f8f9fa;
-            color: #ff6b6b;
-            border: 1px solid #e9ecef;
+            color: #4F9153;
+            border: 2px solid #4F9153;
         }
 
         .chat-button-option.secondary:hover {
-            background: #e9ecef;
-            color: #ff5252;
+            background: #4F9153;
+            color: white;
         }
 
         .typing-indicator {
             display: none;
             align-items: center;
-            padding: 12px 16px;
+            padding: 14px 18px;
             background: white;
-            border-radius: 18px;
-            border-bottom-left-radius: 4px;
-            margin: 0 8px 16px 36px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            border-bottom-left-radius: 6px;
+            margin: 0 12px 20px 44px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e9ecef;
         }
 
         .typing-dots {
             display: flex;
-            gap: 4px;
+            gap: 6px;
         }
 
         .typing-dot {
-            width: 6px;
-            height: 6px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
-            background: #999;
+            background: #4F9153;
             animation: typing 1.4s infinite ease-in-out;
         }
 
@@ -308,7 +454,7 @@
                 opacity: 0.5;
             }
             30% {
-                transform: translateY(-10px);
+                transform: translateY(-12px);
                 opacity: 1;
             }
         }
@@ -316,64 +462,101 @@
         .chat-input {
             padding: 20px;
             background: white;
-            border-top: 1px solid #eee;
+            border-top: 1px solid #e9ecef;
         }
 
         .input-container {
             display: flex;
             align-items: center;
             background: #f8f9fa;
-            border-radius: 24px;
+            border-radius: 25px;
             padding: 4px;
+            border: 2px solid transparent;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-container:focus-within {
+            border-color: #4F9153;
         }
 
         .chat-input input {
             flex: 1;
             border: none;
             background: none;
-            padding: 12px 16px;
+            padding: 12px 18px;
             font-size: 14px;
             outline: none;
             border-radius: 20px;
         }
 
+        .chat-input input::placeholder {
+            color: #999;
+        }
+
         .send-btn {
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            background: #ff6b6b;
+            background: linear-gradient(135deg, #4F9153, #6FA86F);
             border: none;
             color: white;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background 0.2s;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(79, 145, 83, 0.2);
         }
 
         .send-btn:hover {
-            background: #ff5252;
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(79, 145, 83, 0.3);
+        }
+
+        .send-btn:active {
+            transform: scale(0.95);
         }
 
         .send-btn:disabled {
             background: #ccc;
             cursor: not-allowed;
+            transform: none;
         }
 
         .api-status {
             position: absolute;
-            top: 8px;
-            right: 40px;
-            font-size: 10px;
+            top: 10px;
+            right: 50px;
+            font-size: 11px;
             opacity: 0.8;
+            padding: 4px 8px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
         }
 
         .api-status.online {
-            color: #00b894;
+            color: #00d4aa;
         }
 
         .api-status.offline {
             color: #ff6b6b;
+        }
+
+        /* Fade out animation for buttons */
+        .message-buttons.fade-out {
+            animation: buttonsSlideOut 0.2s ease forwards;
+        }
+
+        @keyframes buttonsSlideOut {
+            0% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
         }
 
         @media (max-width: 480px) {
@@ -382,6 +565,15 @@
                 height: 70vh;
                 bottom: 80px;
                 right: 20px;
+                border-radius: 15px;
+            }
+            
+            .message-content {
+                max-width: 85%;
+            }
+            
+            .message-buttons {
+                max-width: 85%;
             }
         }
     </style>
@@ -418,12 +610,6 @@
             </div>
 
             <div class="chat-messages" id="chatMessages">
-                <div class="message bot">
-                    <div class="message-avatar">🐼</div>
-                    <div class="message-content">
-                        Hello! I am Panda Bot 🐼 How are you today?
-                    </div>
-                </div>
             </div>
 
             <div class="typing-indicator" id="typingIndicator">
@@ -460,9 +646,11 @@
                 this.apiStatus = document.getElementById('apiStatus');
                 
                 this.isOpen = false;
-                this.currentStep = 'greeting'; // greeting -> name -> phone -> main_menu
+                this.currentStep = 'welcome'; // welcome -> name -> phone -> main_menu
                 this.userName = '';
                 this.userPhone = '';
+                this.messageQueue = [];
+                this.isProcessing = false;
                 
                 // Google Sheets API URL - REPLACE WITH YOUR ACTUAL GOOGLE SHEETS API URL
                 this.googleSheetsURL = 'https://script.google.com/macros/s/AKfycbxd5WNZjj-mKcUUV6sWTyNY-Hi6YFcMMxl0cW2Q0XVCoIDv8ObmcU92DWcOHvmlAy_tvg/exec';
@@ -505,14 +693,35 @@
             }
 
             openChat() {
-                this.chatWindow.classList.add('active');
+                this.chatWindow.classList.add('active', 'opening');
                 this.isOpen = true;
                 this.messageInput.focus();
+                
+                // Show welcome message if first time
+                if (this.currentStep === 'welcome') {
+                    setTimeout(() => {
+                        this.showWelcomeSequence();
+                    }, 500);
+                }
             }
 
             closeChat() {
-                this.chatWindow.classList.remove('active');
+                this.chatWindow.classList.remove('active', 'opening');
                 this.isOpen = false;
+            }
+
+            async showWelcomeSequence() {
+                // Show panda image first
+                this.addPandaImage();
+                await this.delay(800);
+                
+                // Then welcome message
+                this.addMessage("Welcome to Little Panda! 🎋", 'bot');
+                await this.delay(1000);
+                
+                // Ask for name
+                this.addMessage("I'm your friendly Panda Bot assistant. What's your name?", 'bot');
+                this.currentStep = 'name';
             }
 
             updateSendButton() {
@@ -522,12 +731,17 @@
 
             async sendMessage() {
                 const message = this.messageInput.value.trim();
-                if (!message) return;
+                if (!message || this.isProcessing) return;
 
+                this.isProcessing = true;
+                
                 // Add user message
                 this.addMessage(message, 'user');
                 this.messageInput.value = '';
                 this.updateSendButton();
+
+                // Hide any existing buttons
+                this.fadeOutButtons();
 
                 // Show typing indicator
                 this.showTyping();
@@ -536,27 +750,27 @@
                 await this.processMessage(message);
                 
                 this.hideTyping();
+                this.isProcessing = false;
             }
 
             async processMessage(message) {
-                await this.delay(1000); // Simulate thinking time
+                await this.delay(1200); // 3 second delay for natural conversation
 
                 switch (this.currentStep) {
-                    case 'greeting':
-                        this.currentStep = 'name';
-                        this.addMessage("Nice to meet you! 😊 What's your name?", 'bot');
-                        break;
-                    
                     case 'name':
                         this.userName = message;
                         this.currentStep = 'phone';
-                        this.addMessage(`Nice to meet you, ${this.userName}! 🐼 Could you please share your phone number so I can assist you better?`, 'bot');
+                        await this.addMessageWithDelay(`Nice to meet you, ${this.userName}! 🐼`, 'bot');
+                        await this.delay(800);
+                        await this.addMessageWithDelay("Could you please share your phone number so I can assist you better?", 'bot');
                         break;
                     
                     case 'phone':
                         this.userPhone = message;
                         await this.saveToGoogleSheets();
                         this.currentStep = 'main_menu';
+                        await this.addMessageWithDelay("Thank you! Your information has been saved. 📱", 'bot');
+                        await this.delay(800);
                         this.showMainMenu();
                         break;
                     
@@ -564,6 +778,13 @@
                         // Handle general conversation in main menu
                         this.handleGeneralMessage(message);
                         break;
+                }
+            }
+
+            async addMessageWithDelay(content, sender, buttons = null) {
+                this.addMessage(content, sender, buttons);
+                if (buttons) {
+                    await this.delay(500); // Small delay before showing buttons
                 }
             }
 
@@ -599,65 +820,117 @@
                 }, 3000);
             }
 
-            showMainMenu() {
-                const welcomeMessage = `Hello ${this.userName}! **Rooooar!** Hi there! I'm **Cubbot**, your friendly guide to Little Panda 🐼. How can I help you today?`;
+            async showMainMenu() {
+                await this.addMessageWithDelay(`Hello ${this.userName}! I'm here to help you learn about Little Panda. 🐼`, 'bot');
+                await this.delay(2000);
                 
                 const buttons = [
                     { text: "About Us", action: "about-us", type: "primary" },
-                    { text: "Programs and Curriculum", action: "programs", type: "primary" },
+                    { text: "Programs & Curriculum", action: "programs", type: "primary" },
                     { text: "Admission Enquiry", action: "admission", type: "primary" },
                     { text: "Contact Us", action: "contact", type: "primary" },
-                    { text: "FAQ", action: "faq", type: "secondary" }
+                    { text: "FAQ", action: "faq", type: "primary" }
                 ];
 
-                this.addMessage(welcomeMessage, 'bot', buttons);
+                await this.addMessageWithDelay("What would you like to know about?", 'bot', buttons);
             }
 
-            handleButtonClick(action) {
+            fadeOutButtons() {
+                const existingButtons = this.chatMessages.querySelectorAll('.message-buttons');
+                existingButtons.forEach(buttonContainer => {
+                    buttonContainer.classList.add('fade-out');
+                    setTimeout(() => {
+                        buttonContainer.remove();
+                    }, 200);
+                });
+            }
+
+            async handleButtonClick(action) {
+                this.fadeOutButtons();
+                
+                // Show typing indicator
+                this.showTyping();
+                await this.delay(800);
+                this.hideTyping();
+
                 switch (action) {
                     case 'about-us':
-                        this.addMessage(`Great choice, ${this.userName}! Little Panda is a premier early childhood education center dedicated to nurturing young minds through play-based learning and creative exploration. We believe every child is unique and deserves personalized attention to reach their full potential. 🌟`, 'bot', [
+                        await this.addMessageWithDelay(`Great choice, ${this.userName}! 🌟`, 'bot');
+                        await this.delay(800);
+                        await this.addMessageWithDelay("Little Panda is a premier early childhood education center dedicated to nurturing young minds.", 'bot');
+                        await this.delay(800);
+                        
+                        const aboutButtons = [
                             { text: "Our Mission", action: "mission" },
                             { text: "Our Values", action: "values" },
                             { text: "Back to Menu", action: "main-menu", type: "secondary" }
-                        ]);
+                        ];
+                        await this.addMessageWithDelay("We believe every child is unique and deserves personalized attention.", 'bot', aboutButtons);
                         break;
                     
                     case 'programs':
-                        this.addMessage(`Our comprehensive programs are designed for different age groups, ${this.userName}! We offer structured learning experiences that combine academics with creative activities, outdoor play, and social development. 📚🎨`, 'bot', [
+                        await this.addMessageWithDelay(`Let me tell you about our programs, ${this.userName}! 📚`, 'bot');
+                        await this.delay(800);
+                        await this.addMessageWithDelay("We offer comprehensive programs designed for different age groups.", 'bot');
+                        await this.delay(800);
+                        
+                        const programButtons = [
                             { text: "Toddler Program (1-2 years)", action: "toddler-program" },
                             { text: "Preschool (3-4 years)", action: "preschool-program" },
                             { text: "Pre-K (4-5 years)", action: "prek-program" },
                             { text: "Back to Menu", action: "main-menu", type: "secondary" }
-                        ]);
+                        ];
+                        await this.addMessageWithDelay("Each program combines academics with creative activities and social development.", 'bot', programButtons);
                         break;
                     
                     case 'admission':
-                        this.addMessage(`I'd be happy to help you with the admission process, ${this.userName}! Our admissions team can provide detailed information about enrollment, requirements, and available spots. 🎓`, 'bot', [
+                        await this.addMessageWithDelay(`I'd be happy to help with the admission process, ${this.userName}! 🎓`, 'bot');
+                        await this.delay(800);
+                        await this.addMessageWithDelay("Our admissions team can provide detailed information about enrollment.", 'bot');
+                        await this.delay(800);
+                        
+                        const admissionButtons = [
                             { text: "Enrollment Process", action: "enrollment" },
                             { text: "Application Form", action: "application" },
                             { text: "Schedule Visit", action: "visit" },
                             { text: "Back to Menu", action: "main-menu", type: "secondary" }
-                        ]);
+                        ];
+                        await this.addMessageWithDelay("We'll guide you through every step of the process.", 'bot', admissionButtons);
                         break;
                     
                     case 'contact':
-                        this.addMessage(`Here's how you can reach us, ${this.userName}! 📞\n\n📍 Address: [Your Address Here]\n📞 Phone: [Your Phone Number]\n📧 Email: info@littlepanda.com\n🕒 Hours: Mon-Fri 7:00 AM - 6:00 PM`, 'bot', [
+                        await this.addMessageWithDelay(`Here's how you can reach us, ${this.userName}! 📞`, 'bot');
+                        await this.delay(800);
+                        await this.addMessageWithDelay("📍 Address: [Your Address Here]", 'bot');
+                        await this.delay(800);
+                        await this.addMessageWithDelay("📞 Phone: [Your Phone Number]", 'bot');
+                        await this.delay(800);
+                        await this.addMessageWithDelay("📧 Email: info@littlepanda.com", 'bot');
+                        await this.delay(800);
+                        await this.addMessageWithDelay("🕒 Hours: Mon-Fri 7:00 AM - 6:00 PM", 'bot');
+                        await this.delay(800);
+                        
+                        const contactButtons = [
                             { text: "Call Now", action: "call-now" },
                             { text: "Send Email", action: "send-email" },
                             { text: "Get Directions", action: "directions" },
                             { text: "Back to Menu", action: "main-menu", type: "secondary" }
-                        ]);
+                        ];
+                        await this.addMessageWithDelay("How would you like to get in touch?", 'bot', contactButtons);
                         break;
                     
                     case 'faq':
-                        this.addMessage(`Here are some frequently asked questions, ${this.userName}! 🤔`, 'bot', [
+                        await this.addMessageWithDelay(`Here are some frequently asked questions, ${this.userName}! 🤔`, 'bot');
+                        await this.delay(800);
+                        
+                        const faqButtons = [
                             { text: "What are your hours?", action: "hours-faq" },
                             { text: "What's included in tuition?", action: "tuition-faq" },
                             { text: "Safety protocols?", action: "safety-faq" },
                             { text: "Meal programs?", action: "meal-faq" },
                             { text: "Back to Menu", action: "main-menu", type: "secondary" }
-                        ]);
+                        ];
+                        await this.addMessageWithDelay("What would you like to know?", 'bot', faqButtons);
                         break;
                     
                     case 'main-menu':
@@ -666,39 +939,59 @@
                     
                     // Additional handlers for sub-menu items
                     case 'mission':
-                        this.addMessage("Our mission is to provide a safe, nurturing, and stimulating environment where children can explore, learn, and grow while developing a lifelong love of learning. 🎯", 'bot', [
+                        await this.addMessageWithDelay("Our mission is to provide a safe, nurturing, and stimulating environment where children can explore, learn, and grow while developing a lifelong love of learning. 🎯", 'bot');
+                        await this.delay(800);
+                        
+                        const missionButtons = [
                             { text: "Back to About Us", action: "about-us", type: "secondary" }
-                        ]);
+                        ];
+                        await this.addMessageWithDelay("Would you like to know more about us?", 'bot', missionButtons);
                         break;
                     
                     case 'values':
-                        this.addMessage("Our core values include respect, creativity, inclusivity, excellence, and family partnership. We believe in celebrating each child's uniqueness while building a strong community. 💝", 'bot', [
+                        await this.addMessageWithDelay("Our core values include respect, creativity, inclusivity, excellence, and family partnership. We believe in celebrating each child's uniqueness while building a strong community. 💝", 'bot');
+                        await this.delay(800);
+                        
+                        const valuesButtons = [
                             { text: "Back to About Us", action: "about-us", type: "secondary" }
-                        ]);
+                        ];
+                        await this.addMessageWithDelay("Would you like to learn more about our approach?", 'bot', valuesButtons);
                         break;
                     
                     case 'enrollment':
-                        this.addMessage("Our enrollment process is simple! We start with a tour, followed by an application, meet & greet session, and then enrollment completion. We're here to guide you every step of the way! 📝", 'bot', [
+                        await this.addMessageWithDelay("Our enrollment process is simple! We start with a tour, followed by an application, meet & greet session, and then enrollment completion. We're here to guide you every step of the way! 📝", 'bot');
+                        await this.delay(800);
+                        
+                        const enrollmentButtons = [
                             { text: "Schedule Tour", action: "visit" },
                             { text: "Back to Admission", action: "admission", type: "secondary" }
-                        ]);
+                        ];
+                        await this.addMessageWithDelay("Would you like to schedule a tour?", 'bot', enrollmentButtons);
                         break;
                     
                     case 'hours-faq':
-                        this.addMessage("We're open Monday through Friday from 7:00 AM to 6:00 PM. We also offer extended care options for working parents. 🕐", 'bot', [
+                        await this.addMessageWithDelay("We're open Monday through Friday from 7:00 AM to 6:00 PM. We also offer extended care options for working parents. 🕐", 'bot');
+                        await this.delay(800);
+                        
+                        const hoursButtons = [
                             { text: "Extended Care Info", action: "extended-care" },
                             { text: "Back to FAQ", action: "faq", type: "secondary" }
-                        ]);
+                        ];
+                        await this.addMessageWithDelay("Need information about extended care?", 'bot', hoursButtons);
                         break;
                     
                     default:
-                        this.addMessage(`I'm still working on that section, ${this.userName}! Our team will be happy to provide more details. Is there anything else I can help you with? 🤖`, 'bot', [
+                        await this.addMessageWithDelay(`I'm still working on that section, ${this.userName}! Our team will be happy to provide more details. Is there anything else I can help you with? 🤖`, 'bot');
+                        await this.delay(800);
+                        
+                        const defaultButtons = [
                             { text: "Back to Menu", action: "main-menu", type: "secondary" }
-                        ]);
+                        ];
+                        await this.addMessageWithDelay("Let me know how else I can help!", 'bot', defaultButtons);
                 }
             }
 
-            handleGeneralMessage(message) {
+            async handleGeneralMessage(message) {
                 const lowerMessage = message.toLowerCase();
                 let response = `Thanks for your message, ${this.userName}! `;
 
@@ -719,7 +1012,7 @@
                     { text: "Contact", action: "contact", type: "secondary" }
                 ];
 
-                this.addMessage(response, 'bot', buttons);
+                await this.addMessageWithDelay(response, 'bot', buttons);
             }
 
             addMessage(content, sender, buttons = null) {
@@ -755,6 +1048,14 @@
                     this.chatMessages.appendChild(buttonsContainer);
                 }
                 
+                this.scrollToBottom();
+            }
+
+            addPandaImage() {
+                const imageDiv = document.createElement('div');
+                imageDiv.className = 'welcome-message';
+                imageDiv.innerHTML = '<div class="panda-image">🐼</div>';
+                this.chatMessages.appendChild(imageDiv);
                 this.scrollToBottom();
             }
 
