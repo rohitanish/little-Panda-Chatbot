@@ -20,6 +20,63 @@
             justify-content: center;
             color: white;
         }
+        .team-image {
+    max-width: 100%;
+    width: 200px;
+    height: 150px;
+    object-fit: cover;
+    margin: 10px auto;
+    display: block;
+    border-radius: 10px;
+    border: 2px solid #4F9153;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.team-image:hover {
+    transform: scale(1.05);
+}
+
+/* Modal styles for full-size image */
+.image-modal {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+}
+
+.image-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.modal-close {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    color: white;
+    font-size: 35px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 10001;
+}
+
+.modal-close:hover {
+    color: #ccc;
+}
 
         .demo-content {
             text-align: center;
@@ -102,6 +159,27 @@
             }
         }
 
+        .panda-description {
+    text-align: center;
+    font-size: 12px;
+    color: #666;
+    margin: 10px 20px 20px 20px;
+    line-height: 1.4;
+    opacity: 0;
+    animation: fadeInDescription 1s ease forwards;
+}
+
+@keyframes fadeInDescription {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
         .chat-window {
             position: absolute;
             bottom: 80px;
@@ -140,6 +218,7 @@
             }
         }
 
+
         .chat-header {
             background: linear-gradient(135deg, #4F9153, #6FA86F);
             color: white;
@@ -176,27 +255,7 @@
             margin-bottom: 4px;
         }
 
-        .bot-status {
-            font-size: 13px;
-            opacity: 0.9;
-            display: flex;
-            align-items: center;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #00d4aa;
-            margin-right: 6px;
-            animation: statusPulse 2s infinite;
-        }
-
-        @keyframes statusPulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
+       
         .close-btn {
             background: none;
             border: none;
@@ -523,7 +582,7 @@
             transform: none;
         }
 
-        .api-status {
+        /* .api-status {
             position: absolute;
             top: 10px;
             right: 50px;
@@ -541,7 +600,7 @@
 
         .api-status.offline {
             color: #ff6b6b;
-        }
+        } */
 
         /* Fade out animation for buttons */
         .message-buttons.fade-out {
@@ -594,14 +653,11 @@
                 <div class="chat-header-info">
                     <div class="bot-avatar">🐼</div>
                     <div class="bot-info">
-                        <h3>Panda Bot</h3>
-                        <div class="bot-status">
-                            <div class="status-dot"></div>
-                            Online
-                        </div>
+                        <h3>Pandabot</h3>
+                        
                     </div>
                 </div>
-                <div class="api-status" id="apiStatus">Ready</div>
+                <div class="api-status" id="apiStatus"></div>
                 <button class="close-btn" id="closeBtn">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
@@ -635,6 +691,56 @@
 
     <script>
         class PandaBot {
+            // Add this method inside your PandaBot class
+                setupImageModal() {
+    // Create modal if it doesn't exist
+    if (!document.getElementById('imageModal')) {
+        const modal = document.createElement('div');
+        modal.id = 'imageModal';
+        modal.className = 'image-modal';
+        modal.innerHTML = `
+            <span class="modal-close">&times;</span>
+            <img class="modal-content" id="modalImage">
+        `;
+        document.body.appendChild(modal);
+        
+        // Add event listeners
+        const closeBtn = modal.querySelector('.modal-close');
+       closeBtn.addEventListener('click', (e) => {
+    e.stopPropagation(); // Prevent event bubbling
+    this.closeImageModal();
+});
+        
+       // Close modal when clicking outside the image
+modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+        e.stopPropagation(); // Prevent event bubbling
+        this.closeImageModal();
+    }
+});
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                this.closeImageModal();
+            }
+        });
+    }
+}
+
+openImageModal(imageUrl) {
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    modal.classList.add('active');
+    modalImg.src = imageUrl;
+    document.body.style.overflow = 'hidden';
+}
+
+closeImageModal() {
+    const modal = document.getElementById('imageModal');
+    modal.classList.remove('active');
+    document.body.style.overflow = 'auto';
+}
             constructor() {
                 this.chatButton = document.getElementById('chatButton');
                 this.chatWindow = document.getElementById('chatWindow');
@@ -646,7 +752,7 @@
                 this.apiStatus = document.getElementById('apiStatus');
                 
                 this.isOpen = false;
-                this.currentStep = 'welcome'; // welcome -> name -> phone -> main_menu
+                this.currentStep = 'welcome'; // // welcome -> name -> phone -> main_menu -> faq_input
                 this.userName = '';
                 this.userPhone = '';
                 this.messageQueue = [];
@@ -654,8 +760,11 @@
                 
                 // Google Sheets API URL - REPLACE WITH YOUR ACTUAL GOOGLE SHEETS API URL
                 this.googleSheetsURL = 'https://script.google.com/macros/s/AKfycbxd5WNZjj-mKcUUV6sWTyNY-Hi6YFcMMxl0cW2Q0XVCoIDv8ObmcU92DWcOHvmlAy_tvg/exec';
+                this.faqURL = 'https://script.google.com/macros/s/AKfycbwKjen3otLNqmX2lbFQbYhDcZHGpgbY-Ph20NoAJAObk4rMTPL1PaT-8Z_eq9uAdHNf/exec';
+                this.userFAQQuestion = '';
                 
                 this.init();
+                this.setupImageModal(); 
             }
 
             init() {
@@ -677,11 +786,19 @@
                 });
                 
                 // Close chat when clicking outside
-                document.addEventListener('click', (e) => {
-                    if (this.isOpen && !this.chatWindow.contains(e.target) && !this.chatButton.contains(e.target)) {
-                        this.closeChat();
-                    }
-                });
+                // Close chat when clicking outside
+document.addEventListener('click', (e) => {
+    // Don't close chat if clicking on modal or modal elements
+    const modal = document.getElementById('imageModal');
+    const isModalClick = modal && (modal.contains(e.target) || e.target === modal);
+    
+    if (this.isOpen && 
+        !this.chatWindow.contains(e.target) && 
+        !this.chatButton.contains(e.target) && 
+        !isModalClick) {
+        this.closeChat();
+    }
+});
             }
 
             toggleChat() {
@@ -709,118 +826,146 @@
                 this.chatWindow.classList.remove('active', 'opening');
                 this.isOpen = false;
             }
+            addPandaDescription() {
+    const description = document.createElement('div');
+    description.className = 'panda-description';
+    description.innerHTML = 'Meet Pandabot, your friendly guide to Little Panda Preschool, here to answer your questions and provide helpful information!';
+    this.chatMessages.appendChild(description);
+    this.scrollToBottom();
+}
 
-            async showWelcomeSequence() {
-                // Show panda image first
-                this.addPandaImage();
-                await this.delay(800);
-                
-                // Then welcome message
-                this.addMessage("Welcome to Little Panda! 🎋", 'bot');
-                await this.delay(1000);
-                
-                // Ask for name
-                this.addMessage("I'm your friendly Panda Bot assistant. What's your name?", 'bot');
-                this.currentStep = 'name';
+           async showWelcomeSequence() {
+    // Show panda image first
+    this.addPandaImage();
+    await this.delay(800);
+
+    this.addPandaDescription();
+    await this.delay(800);
+    
+    // Then welcome message
+    this.addMessage("Rooooar! Hi there! I'm PandaBot🤖, your friendly guide to Little Panda ?", 'bot');
+    await this.delay(800);
+    
+    // Ask for name
+    this.addMessage("What’s your <strong>name</strong>, buddy? I’m excited to guide you!", 'bot');
+    this.currentStep = 'name';
+}
+
+updateSendButton() {
+    const hasText = this.messageInput.value.trim().length > 0;
+    this.sendBtn.disabled = !hasText;
+}
+
+async sendMessage() {
+    const message = this.messageInput.value.trim();
+    if (!message || this.isProcessing) return;
+
+    this.isProcessing = true;
+    
+    // Add user message
+    this.addMessage(message, 'user');
+    this.messageInput.value = '';
+    this.updateSendButton();
+
+    // Hide any existing buttons
+    this.fadeOutButtons();
+
+    // Show typing indicator
+    this.showTyping();
+
+    // Process message based on current step
+    await this.processMessage(message);
+    
+    this.hideTyping();
+    this.isProcessing = false;
+}
+
+async processMessage(message) {
+    await this.delay(1200); // 1.2 second delay for natural conversation
+
+    switch (this.currentStep) {
+        case 'name':
+            this.userName = message;
+            this.currentStep = 'email'; // Changed from 'phone' to 'email'
+            await this.addMessageWithDelay(`Nice to meet you, ${this.userName}! 🐼`, 'bot');
+            await this.delay(800);
+            await this.addMessageWithDelay("Could you please share your email so I can assist you better?", 'bot');
+            break;
+        
+        case 'email': // Changed from 'phone' to 'email'
+            if (this.isValidEmail(message)) {
+                this.userEmail = message; // Changed from userPhone to userEmail
+                await this.saveToGoogleSheets();
+                this.currentStep = 'main_menu';
+                // await this.addMessageWithDelay("Thank you! Your information has been saved. 📧", 'bot');
+                // await this.delay(800);
+                this.showMainMenu();
+            } else {
+                await this.addMessageWithDelay("❌ Invalid email format. Please enter a valid email address (e.g., name@example.com)", 'bot');
+                // Keep the current step as 'email' to ask again
             }
+            break;
+        
+        case 'main_menu':
+            // Handle general conversation in main menu
+            this.handleGeneralMessage(message);
+            break;
+        
+        case 'faq_input':
+            this.userFAQQuestion = message;
+            await this.handleFAQResponse(message);
+            this.currentStep='faq_input' 
+            break;
+    }
+}
 
-            updateSendButton() {
-                const hasText = this.messageInput.value.trim().length > 0;
-                this.sendBtn.disabled = !hasText;
-            }
+async addMessageWithDelay(content, sender, buttons = null) {
+    this.addMessage(content, sender, buttons);
+    if (buttons) {
+        await this.delay(500); // Small delay before showing buttons
+    }
+}
 
-            async sendMessage() {
-                const message = this.messageInput.value.trim();
-                if (!message || this.isProcessing) return;
+async saveToGoogleSheets() {
+    try {
+       
+        
+        const formData = new FormData();
+        formData.append('name', this.userName);
+        formData.append('email', this.userEmail); // Changed from 'phone' to 'email'
+        
+        // Create formatted date and time
+        const now = new Date();
+        const date = now.toLocaleDateString('en-GB'); // DD/MM/YYYY format
+        const time = now.toLocaleTimeString('en-GB', { hour12: false }); // HH:MM:SS format
+        
+        formData.append('date', date);
+        formData.append('time', time);
+        
+        const response = await fetch(this.googleSheetsURL, {
+            method: 'POST',
+            body: formData
+        });
 
-                this.isProcessing = true;
-                
-                // Add user message
-                this.addMessage(message, 'user');
-                this.messageInput.value = '';
-                this.updateSendButton();
+        if (response.ok) {
+            // this.updateApiStatus('Saved ✓');
+            console.log('Data saved to Google Sheets successfully');
+        } else {
+            // this.updateApiStatus('Save Error');
+            console.error('Failed to save to Google Sheets');
+        }
+    } catch (error) {
+        // this.updateApiStatus('Save Error');
+        console.error('Error saving to Google Sheets:', error);
+    }
+    
+    // Reset status after 3 seconds
+    // setTimeout(() => {
+    //     this.updateApiStatus('Online');
+    // }, 3000);
+}
 
-                // Hide any existing buttons
-                this.fadeOutButtons();
-
-                // Show typing indicator
-                this.showTyping();
-
-                // Process message based on current step
-                await this.processMessage(message);
-                
-                this.hideTyping();
-                this.isProcessing = false;
-            }
-
-            async processMessage(message) {
-                await this.delay(1200); // 3 second delay for natural conversation
-
-                switch (this.currentStep) {
-                    case 'name':
-                        this.userName = message;
-                        this.currentStep = 'phone';
-                        await this.addMessageWithDelay(`Nice to meet you, ${this.userName}! 🐼`, 'bot');
-                        await this.delay(800);
-                        await this.addMessageWithDelay("Could you please share your phone number so I can assist you better?", 'bot');
-                        break;
-                    
-                    case 'phone':
-                        this.userPhone = message;
-                        await this.saveToGoogleSheets();
-                        this.currentStep = 'main_menu';
-                        await this.addMessageWithDelay("Thank you! Your information has been saved. 📱", 'bot');
-                        await this.delay(800);
-                        this.showMainMenu();
-                        break;
-                    
-                    case 'main_menu':
-                        // Handle general conversation in main menu
-                        this.handleGeneralMessage(message);
-                        break;
-                }
-            }
-
-            async addMessageWithDelay(content, sender, buttons = null) {
-                this.addMessage(content, sender, buttons);
-                if (buttons) {
-                    await this.delay(500); // Small delay before showing buttons
-                }
-            }
-
-            async saveToGoogleSheets() {
-                try {
-                    this.updateApiStatus('Saving...');
-                    
-                    const formData = new FormData();
-                    formData.append('name', this.userName);
-                    formData.append('phone', this.userPhone);
-                    formData.append('timestamp', new Date().toISOString());
-                    
-                    const response = await fetch(this.googleSheetsURL, {
-                        method: 'POST',
-                        body: formData
-                    });
-
-                    if (response.ok) {
-                        this.updateApiStatus('Saved ✓');
-                        console.log('Data saved to Google Sheets successfully');
-                    } else {
-                        this.updateApiStatus('Save Error');
-                        console.error('Failed to save to Google Sheets');
-                    }
-                } catch (error) {
-                    this.updateApiStatus('Save Error');
-                    console.error('Error saving to Google Sheets:', error);
-                }
-                
-                // Reset status after 3 seconds
-                setTimeout(() => {
-                    this.updateApiStatus('Online');
-                }, 3000);
-            }
-
-           async showMainMenu(isReturning = false) {
+async showMainMenu(isReturning = false) {
     if (!isReturning) {
         await this.addMessageWithDelay(`Hello ${this.userName}! I'm here to help you learn about Little Panda. 🐼`, 'bot');
         await this.delay(800);
@@ -835,6 +980,67 @@
     ];
 
     await this.addMessageWithDelay("What would you like to know about?", 'bot', buttons);
+}
+
+//email checker
+isValidEmail(email) {
+    // Comprehensive email validation regex
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    
+    // Additional checks
+    const trimmedEmail = email.trim();
+    
+    // Basic format check
+    if (!emailRegex.test(trimmedEmail)) {
+        return false;
+    }
+    
+    // Check for consecutive dots
+    if (trimmedEmail.includes('..')) {
+        return false;
+    }
+    
+    // Check if starts or ends with dot
+    if (trimmedEmail.startsWith('.') || trimmedEmail.endsWith('.')) {
+        return false;
+    }
+    
+    // Check for valid length
+    if (trimmedEmail.length < 5 || trimmedEmail.length > 254) {
+        return false;
+    }
+    
+    // Split and validate local and domain parts
+    const [localPart, domainPart] = trimmedEmail.split('@');
+    
+    // Check local part length (before @)
+    if (localPart.length < 1 || localPart.length > 64) {
+        return false;
+    }
+    
+    // Check domain part length (after @)
+    if (domainPart.length < 1 || domainPart.length > 253) {
+        return false;
+    }
+    
+    // Check if domain has at least one dot
+    if (!domainPart.includes('.')) {
+        return false;
+    }
+    
+    // Check for valid characters in local part
+    const localPartRegex = /^[a-zA-Z0-9._%+-]+$/;
+    if (!localPartRegex.test(localPart)) {
+        return false;
+    }
+    
+    // Check for valid characters in domain part
+    const domainPartRegex = /^[a-zA-Z0-9.-]+$/;
+    if (!domainPartRegex.test(domainPart)) {
+        return false;
+    }
+    
+    return true;
 }
 
             fadeOutButtons() {
@@ -865,7 +1071,8 @@
                         
                         const aboutButtons = [
                             { text: "Our Mission", action: "mission" },
-                            { text: "Our Values", action: "values" },
+                            { text: "Meet Our Team", action: "Team" },
+                            { text: "Our Testimonials", action: "Testimonials" },
                             { text: "Back to Menu", action: "main-menu", type: "secondary" }
                         ];
                         await this.addMessageWithDelay("We believe every child is unique and deserves personalized attention.", 'bot', aboutButtons);
@@ -923,23 +1130,20 @@
                         break;
                     
                     case 'faq':
-                        await this.addMessageWithDelay(`Here are some frequently asked questions, ${this.userName}! 🤔`, 'bot');
-                        await this.delay(800);
-                        
-                        const faqButtons = [
-                            { text: "What are your hours?", action: "hours-faq" },
-                            { text: "What's included in tuition?", action: "tuition-faq" },
-                            { text: "Safety protocols?", action: "safety-faq" },
-                            { text: "Meal programs?", action: "meal-faq" },
-                            { text: "Back to Menu", action: "main-menu", type: "secondary" }
-                        ];
-                        await this.addMessageWithDelay("What would you like to know?", 'bot', faqButtons);
-                        break;
+                    this.currentStep = 'faq_input';
+                    await this.addMessageWithDelay("What would you like to ask? You can ask about fees, admission, hostel, library, placement, or anything else!", 'bot');
+                    break;
                     
                     case 'main-menu':
+                        this.currentStep = 'main_menu';
                         this.showMainMenu(true);
                         break;
-                    
+
+                
+                    case 'ask-more-faq':
+                    await this.addMessageWithDelay("What else would you like to know? Feel free to ask about fees, admission, hostel, library, placement, or anything else!", 'bot');
+                    this.currentStep='faq_input' 
+                    break;                        
                     // Additional handlers for sub-menu items
                     case 'mission':
                         await this.addMessageWithDelay("Our mission is to provide a safe, nurturing, and stimulating environment where children can explore, learn, and grow while developing a lifelong love of learning. 🎯", 'bot');
@@ -951,14 +1155,33 @@
                         await this.addMessageWithDelay("Would you like to know more about us?", 'bot', missionButtons);
                         break;
                     
-                    case 'values':
-                        await this.addMessageWithDelay("Our core values include respect, creativity, inclusivity, excellence, and family partnership. We believe in celebrating each child's uniqueness while building a strong community. 💝", 'bot');
+                   case 'Team':
+    await this.addMessageWithDelay("Meet the amazing team at Little Panda! 🐼", 'bot');
+    
+    // Add team images with working placeholder URLs
+    this.addImageMessage("https://i.pinimg.com/736x/03/5e/fc/035efcf3c52fb8a8e243fcb8c00ac7fd.jpg", "Principal");
+    await this.delay(800);
+    this.addImageMessage("https://i.pinimg.com/736x/0b/f9/de/0bf9de898afaeed49cf52505f3a392e3.jpg", "Lead Teacher");
+    this.addImageMessage("https://i.pinimg.com/736x/a5/51/7d/a5517dd044d7f14cb29b9df352c2e1d3.jpg", "Assistant Teacher");
+    
+    await this.delay(800);
+    
+    const teamButtons = [
+         { text: "Contact Us", action: "contact", type: "secondary" },
+        { text: "Back to About Us", action: "about-us", type: "secondary" }
+    ];
+    await this.addMessageWithDelay("Our teachers and staff are passionate about early childhood education and dedicated to providing a nurturing environment for your little ones", 'bot', teamButtons);
+    break;
+                    
+                    
+                        case 'Testimonials':
+                        await this.addMessageWithDelay("Meet the amazing team at Little Panda!🐼 Our teachers and staff are passionate about early childhood education and dedicated to providing a nurturing environment for your 👩‍👦little ones", 'bot');
                         await this.delay(800);
                         
-                        const valuesButtons = [
+                        const testibuttons = [
                             { text: "Back to About Us", action: "about-us", type: "secondary" }
                         ];
-                        await this.addMessageWithDelay("Would you like to learn more about our approach?", 'bot', valuesButtons);
+                        await this.addMessageWithDelay("Would you like to learn more about our approach?", 'bot', testibuttons);
                         break;
                     
                     case 'enrollment':
@@ -993,6 +1216,40 @@
                         await this.addMessageWithDelay("Let me know how else I can help!", 'bot', defaultButtons);
                 }
             }
+
+            async handleFAQResponse(question) {
+    try {
+        // this.updateApiStatus('Getting answer...');
+        
+        const response = await fetch(`${this.faqURL}?question=${encodeURIComponent(question)}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            // this.updateApiStatus('Answer found ✓');
+            await this.addMessageWithDelay(data.answer, 'bot');
+        } else {
+            // this.updateApiStatus('No answer found');
+            await this.addMessageWithDelay("Oh ho! I don't know about that. 🤔 Could you try asking about fees, admission, hostel, library, placement, or anything else?", 'bot');
+        }
+    } catch (error) {
+        // this.updateApiStatus('Error');
+        console.error('FAQ API Error:', error);
+        await this.addMessageWithDelay("Oops! Something went wrong. 😅 Please try asking your question again.", 'bot');
+    }
+    
+    // Reset status after 3 seconds
+    // setTimeout(() => {
+    //     this.updateApiStatus('Online');
+    // }, 3000);
+    
+    // Show options to continue asking or go back
+    await this.delay(800);
+    const continueButtons = [
+        { text: "Ask Another Question", action: "ask-more-faq", type: "primary" },
+        { text: "Back to Menu", action: "main-menu", type: "secondary" }
+    ];
+    await this.addMessageWithDelay("Would you like to ask another question?", 'bot', continueButtons);
+}
 
             async handleGeneralMessage(message) {
                 const lowerMessage = message.toLowerCase();
@@ -1053,6 +1310,38 @@
                 
                 this.scrollToBottom();
             }
+            addImageMessage(imageUrl, altText = 'Image') {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message bot';
+    const imageId = 'img_' + Date.now() + '_' + Math.random(); // Make ID more unique
+    
+    const avatar = document.createElement('div');
+    avatar.className = 'message-avatar';
+    avatar.textContent = '🐼';
+    
+    const messageContent = document.createElement('div');
+    messageContent.className = 'message-content';
+    
+    const img = document.createElement('img');
+    img.src = imageUrl;
+    img.alt = altText;
+    img.className = 'team-image';
+    img.id = imageId;
+    img.onerror = function() { this.style.display = 'none'; };
+    
+    // Add click event immediately with proper binding
+    img.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.openImageModal(e.target.src);
+    });
+    
+    messageContent.appendChild(img);
+    messageDiv.appendChild(avatar);
+    messageDiv.appendChild(messageContent);
+    
+    this.chatMessages.appendChild(messageDiv);
+    this.scrollToBottom();
+}
 
             addPandaImage() {
                 const imageDiv = document.createElement('div');
@@ -1085,6 +1374,7 @@
                 return new Promise(resolve => setTimeout(resolve, ms));
             }
         }
+       
 
         // Initialize the chatbot when the page loads
         document.addEventListener('DOMContentLoaded', () => {
