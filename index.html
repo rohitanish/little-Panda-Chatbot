@@ -973,10 +973,11 @@ async showMainMenu(isReturning = false) {
     
     const buttons = [
         { text: "About Us", action: "about-us", type: "primary" },
+        { text: "Ask me!", action: "faq", type: "primary" },
         { text: "Programs & Curriculum", action: "programs", type: "primary" },
         { text: "Admission Enquiry", action: "admission", type: "primary" },
         { text: "Contact Us", action: "contact", type: "primary" },
-        { text: "FAQ", action: "faq", type: "primary" }
+        
     ];
 
     await this.addMessageWithDelay("What would you like to know about?", 'bot', buttons);
