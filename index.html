@@ -44,7 +44,9 @@
     pointer-events: none;
     white-space: nowrap;
 }
-
+.chat-copyright {
+    display: none !important;
+}
 .popup-message.show {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -589,10 +591,81 @@
         }
 
         .chat-input {
-            padding: 20px;
-            background: white;
-            border-top: 1px solid #e9ecef;
-        }
+    padding: 20px;
+    background: white;
+    border-top: 1px solid #e9ecef;
+    max-height: 100px;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(0);
+    opacity: 1;
+}
+/* .chat-input.hidden ~ .chat-copyright {
+    display: none;
+} */
+
+.chat-input.hidden {
+    max-height: 0;
+    padding: 0 20px;
+    transform: translateY(-10px);
+    opacity: 0;
+    display: none; 
+}
+.chat-input.hidden + .chat-copyright {
+    display: none;
+}
+.chat-input.visible {
+    max-height: 100px;
+    padding: 20px;
+    transform: translateY(0);
+    opacity: 1;
+}
+.chat-input.opening {
+    animation: shutterOpen 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Shutter closing animation */
+.chat-input.closing {
+    animation: shutterClose 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes shutterOpen {
+    0% {
+        max-height: 0;
+        padding: 0 20px;
+        transform: translateY(-10px);
+        opacity: 0;
+    }
+    50% {
+        max-height: 50px;
+        opacity: 0.5;
+    }
+    100% {
+        max-height: 100px;
+        padding: 20px;
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes shutterClose {
+    0% {
+        max-height: 100px;
+        padding: 20px;
+        transform: translateY(0);
+        opacity: 1;
+    }
+    50% {
+        max-height: 50px;
+        opacity: 0.5;
+    }
+    100% {
+        max-height: 0;
+        padding: 0 20px;
+        transform: translateY(-10px);
+        opacity: 0;
+    }
+}
 
         .input-container {
             display: flex;
@@ -763,6 +836,42 @@
     <script>
         class PandaBot {
 
+            
+
+            hideInput() {
+    const chatInput = document.querySelector('.chat-input');
+    
+    // Add closing animation
+    chatInput.classList.add('closing');
+    chatInput.classList.remove('visible');
+    
+    // After animation completes, add hidden class and remove closing
+    setTimeout(() => {
+        chatInput.classList.add('hidden');
+        chatInput.classList.remove('closing');
+    }, 400);
+}
+
+showInput(placeholder = "Type your message...") {
+    const chatInput = document.querySelector('.chat-input');
+    
+    // Set placeholder if provided
+    if (placeholder) {
+        this.messageInput.placeholder = placeholder;
+    }
+    
+    // Remove hidden class and add opening animation
+    chatInput.classList.remove('hidden');
+    chatInput.classList.add('opening');
+    
+    // After animation starts, add visible class and remove opening
+    setTimeout(() => {
+        chatInput.classList.add('visible');
+        chatInput.classList.remove('opening');
+        this.messageInput.focus();
+    }, 100);
+}
+
             // Add these methods inside your PandaBot class
 showPopup(message = "Hello! 👋", duration = 3000) {
     const popup = document.getElementById('popupMessage');
@@ -875,6 +984,9 @@ closeImageModal() {
                 this.isProcessing = false;
                 this.setCurrentYear();
                 this.popupMessage = document.getElementById('popupMessage');
+                setTimeout(() => {
+        this.hideInput();
+    }, 100);
     
     // Show popup after page loads
     setTimeout(() => {
@@ -919,6 +1031,7 @@ closeImageModal() {
                 // Close chat when clicking outside
                 // Close chat when clicking outside
 document.addEventListener('click', (e) => {
+    
     // Don't close chat if clicking on modal or modal elements
     const modal = document.getElementById('imageModal');
     const isModalClick = modal && (modal.contains(e.target) || e.target === modal);
@@ -981,6 +1094,7 @@ document.addEventListener('click', (e) => {
     // Ask for name
     this.addMessage("What’s your <strong>name</strong>, buddy? I’m excited to guide you!", 'bot');
     this.currentStep = 'name';
+    this.showInput("Enter your name...");
 }
 
 updateSendButton() {
@@ -1022,6 +1136,7 @@ async processMessage(message) {
             await this.addMessageWithDelay(`Nice to meet you, ${this.userName}! 🐼`, 'bot');
             await this.delay(800);
             await this.addMessageWithDelay("Could you please share your email so I can assist you better?", 'bot');
+            this.messageInput.placeholder = "Enter your email address...";
             break;
         
         case 'email': // Changed from 'phone' to 'email'
@@ -1031,6 +1146,7 @@ async processMessage(message) {
                 this.currentStep = 'main_menu';
                 // await this.addMessageWithDelay("Thank you! Your information has been saved. 📧", 'bot');
                 // await this.delay(800);
+                 this.hideInput();
                 this.showMainMenu();
             } else {
                 await this.addMessageWithDelay("❌ Invalid email format. Please enter a valid email address (e.g., name@example.com)", 'bot');
@@ -1415,10 +1531,12 @@ You can book a visit by messaging us directly on WhatsApp.
                     case 'faq':
                     this.currentStep = 'faq_input';
                     await this.addMessageWithDelay("Just type your question and I’ll do my best to help—still learning, though… I’m just a baby 🐼", 'bot');
+                    this.showInput("Type your question here...");
                     break;
                     
                     case 'main-menu':
                         this.currentStep = 'main_menu';
+                        this.hideInput(); 
                         this.showMainMenu(true);
                         break;
 
