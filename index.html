@@ -36,6 +36,21 @@
 .team-image:hover {
     transform: scale(1.05);
 }
+.mission-image {
+    max-width: 100%;
+    width: 100%;
+    height: auto;
+    margin: 0;
+    display: block;
+    border-radius: 0;
+    border: none;
+    cursor: default;
+    transition: none;
+}
+
+.mission-image:hover {
+    transform: none;
+}
 
 /* Modal styles for full-size image */
 .image-modal {
@@ -72,6 +87,26 @@
     font-weight: bold;
     cursor: pointer;
     z-index: 10001;
+}
+
+.chat-copyright {
+    padding: 10px 20px;
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+    text-align: center;
+    font-size: 11px;
+    color: #666;
+    line-height: 1.4;
+}
+
+.chat-copyright a {
+    color: #4F9153;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.chat-copyright a:hover {
+    text-decoration: underline;
 }
 
 .modal-close:hover {
@@ -281,7 +316,7 @@
             padding: 20px;
             overflow-y: auto;
             background: linear-gradient(to bottom, #f8f9fa, #ffffff);
-            max-height: calc(650px - 160px);
+            max-height: calc(650px - 200px);
             scroll-behavior: smooth;
         }
 
@@ -686,11 +721,42 @@
                     </button>
                 </div>
             </div>
+            <div class="chat-copyright">
+            Copyright © <span id="currentYear"></span> Little Panda By <a href="#" target="_blank">Rohit Anish</a>
+            </div>
         </div>
     </div>
 
     <script>
         class PandaBot {
+
+addMissionImage(imageUrl, altText = 'Mission Image') {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message bot';
+    
+    const avatar = document.createElement('div');
+    avatar.className = 'message-avatar';
+    avatar.textContent = '🐼';
+    
+    const messageContent = document.createElement('div');
+    messageContent.className = 'message-content';
+    
+    const img = document.createElement('img');
+    img.src = imageUrl;
+    img.alt = altText;
+    img.className = 'mission-image'; // Use the new CSS class
+    img.onerror = function() { this.style.display = 'none'; };
+    
+    // No click event listener for mission image
+    
+    messageContent.appendChild(img);
+    messageDiv.appendChild(avatar);
+    messageDiv.appendChild(messageContent);
+    
+    this.chatMessages.appendChild(messageDiv);
+    this.scrollToBottom();
+}
+
             // Add this method inside your PandaBot class
                 setupImageModal() {
     // Create modal if it doesn't exist
@@ -757,6 +823,7 @@ closeImageModal() {
                 this.userPhone = '';
                 this.messageQueue = [];
                 this.isProcessing = false;
+                this.setCurrentYear();
                 
                 // Google Sheets API URL - REPLACE WITH YOUR ACTUAL GOOGLE SHEETS API URL
                 this.googleSheetsURL = 'https://script.google.com/macros/s/AKfycbxd5WNZjj-mKcUUV6sWTyNY-Hi6YFcMMxl0cW2Q0XVCoIDv8ObmcU92DWcOHvmlAy_tvg/exec';
@@ -766,6 +833,13 @@ closeImageModal() {
                 this.init();
                 this.setupImageModal(); 
             }
+            setCurrentYear() {
+    const currentYear = new Date().getFullYear();
+    const yearElement = document.getElementById('currentYear');
+    if (yearElement) {
+        yearElement.textContent = currentYear;
+    }
+}
 
             init() {
                 this.chatButton.addEventListener('click', () => this.toggleChat());
@@ -1067,7 +1141,7 @@ isValidEmail(email) {
                     case 'about-us':
                         // await this.addMessageWithDelay(`Great choice, ${this.userName}! 🌟`, 'bot');
                         // await this.delay(800);
-                        await this.addMessageWithDelay("Little Panda is a premier early childhood education center dedicated to nurturing young minds.", 'bot');
+                        await this.addMessageWithDelay("So, you want to know about Little Panda?", 'bot');
                         await this.delay(800);
                         
                         const aboutButtons = [
@@ -1076,7 +1150,7 @@ isValidEmail(email) {
                             { text: "Our Testimonials", action: "Testimonials" },
                             { text: "Back to Menu", action: "main-menu", type: "secondary" }
                         ];
-                        await this.addMessageWithDelay("We believe every child is unique and deserves personalized attention.", 'bot', aboutButtons);
+                        await this.addMessageWithDelay("What would you specifically love to know!", 'bot', aboutButtons);
                         break;
                     
                     case 'programs':
@@ -1086,13 +1160,134 @@ isValidEmail(email) {
                         await this.delay(800);
                         
                         const programButtons = [
-                            { text: "Toddler Program (1-2 years)", action: "toddler-program" },
-                            { text: "Preschool (3-4 years)", action: "preschool-program" },
-                            { text: "Pre-K (4-5 years)", action: "prek-program" },
+                            { text: "Daycare (6 months-2.5 years)", action: "toddler-program" },
+                            { text: "Preschool (1-6 years)", action: "preschool-program" },
                             { text: "Back to Menu", action: "main-menu", type: "secondary" }
+                          
                         ];
                         await this.addMessageWithDelay("Each program combines academics with creative activities and social development.", 'bot', programButtons);
                         break;
+                    
+                        case 'toddler-program':
+                            this.addMissionImage("https://littlepandakids.com/images/daycarem.webp", "Panda");
+                            await this.delay(800);
+                            await this.addMessageWithDelay("At Little Panda, we get that every family's schedule is different.", 'bot');
+                            await this.delay(800);
+                            await this.addMessageWithDelay("That’s why our premium daycare services offer flexible timings—so your child gets top-notch care whenever you need it.", 'bot');
+                            await this.delay(800);
+                            await this.addMessageWithDelay("Our warm, welcoming environment is designed for learning, playing, and growing, all under the watchful care of our trained and compassionate staff", 'bot');
+                            await this.delay(800);
+                            this.addMissionImage("https://i.pinimg.com/736x/58/fa/17/58fa178d29f5cbb38e152b2f81657dba.jpg", "Panda");
+                            await this.delay(800);
+                            
+                            const dayCare = [
+         
+                                    { text: "Admission Enquiry", action: "admission", type: "primary" },
+                                    { text: "Contact Us", action: "contact", type: "primary" },
+                                    { text: "Back to Programs", action: "programs", type: "secondary" }
+                                ];
+                            await this.addMessageWithDelay("Interested in enrolling your little one or learning more?", 'bot');
+                            await this.delay(800);
+                            await this.addMessageWithDelay("Just click below for admission details and to get in touch with us!", 'bot',dayCare);
+                            await this.delay(800);
+                            break;
+                        
+                            case 'preschool-program':
+
+
+                                this.addMissionImage("https://i.pinimg.com/736x/58/fa/17/58fa178d29f5cbb38e152b2f81657dba.jpg", "Panda");
+                                await this.delay(800);
+                                await this.addMessageWithDelay("At Little Panda , we offer a variety of age-tailored options to support your child's development at every stage—each filled with fun, creativity, and meaningful learning.", 'bot');
+                                await this.delay(800);
+                                
+                                const preSchool = [
+            
+                                        { text: "Playgroup", action: "playgroup", type: "primary" },
+                                        { text: "Nursery", action: "nursery", type: "primary" },
+                                        { text: "Jr.KG", action: "jr-kg", type: "primary" },
+                                        { text: "Sr.KG", action: "sr-kg", type: "primary" },
+                                        { text: "Back to Programs", action: "programs", type: "secondary" }
+
+                                    ];
+                                
+                                await this.addMessageWithDelay(" We Offer 4 Exciting Programs Tailored to Your Child’s Growth", 'bot',preSchool);
+                                await this.delay(800);
+                                break;
+                            
+                                case 'playgroup':
+                                    this.addMissionImage("https://littlepandakids.com/images/classes/playgroup.webp", "Panda");
+                                    await this.delay(800);
+                                    await this.addMessageWithDelay("Our little explorers dive into playful activities that spark curiosity and help them make new friends. They start recognizing colors, shapes, and numbers—all while building confidence and social skills through fun-filled learning", 'bot');
+                                    await this.delay(800);
+                                    const playgroup = [
+         
+                                    { text: "Admission Enquiry", action: "admission", type: "primary" },
+                                    { text: "Contact Us", action: "contact", type: "primary" },
+                                    { text: "Back to Programs", action: "preschool-program", type: "secondary" }
+                                ];
+                                    await this.addMessageWithDelay("Interested in enrolling your little one or learning more?", 'bot');
+                                    await this.delay(800);
+                                    await this.addMessageWithDelay("Just click below for admission details and to get in touch with us!", 'bot',playgroup);
+                                    await this.delay(800);
+                                    break;
+
+                                case 'nursery':
+                                    this.addMissionImage("https://littlepandakids.com/images/classes/nursery.webp", "Panda");
+                                    await this.delay(800);
+                                    await this.addMessageWithDelay("Creativity takes center stage here! With art, music, and storytelling, our nursery kids let their imaginations soar. Through painting, role-play, and interactive sessions, they grow emotionally, socially, and artistically.", 'bot');
+                                    await this.delay(800);
+                                    const nursery = [
+         
+                                    { text: "Admission Enquiry", action: "admission", type: "primary" },
+                                    { text: "Contact Us", action: "contact", type: "primary" },
+                                    { text: "Back to Programs", action: "preschool-program", type: "secondary" }
+                                ];
+                                    await this.addMessageWithDelay("Interested in enrolling your little one or learning more?", 'bot');
+                                    await this.delay(800);
+                                    await this.addMessageWithDelay("Just click below for admission details and to get in touch with us!", 'bot',nursery);
+                                    await this.delay(800);
+                                    break;
+                                
+                                case 'jr-kg':
+                                    this.addMissionImage("https://littlepandakids.com/images/classes/Jr%20kg.webp", "Panda");
+                                    await this.delay(800);
+                                    await this.addMessageWithDelay("Hands-on fun that boosts brain power and confidence. From puzzles and games to outdoor adventures, our Jr. KG program supports holistic development—fostering creativity, motor skills, and problem-solving magic.", 'bot');
+                                    await this.delay(800);
+                                    const jr = [
+         
+                                    { text: "Admission Enquiry", action: "admission", type: "primary" },
+                                    { text: "Contact Us", action: "contact", type: "primary" },
+                                    { text: "Back to Programs", action: "preschool-program", type: "secondary" }
+                                ];
+                                    await this.addMessageWithDelay("Interested in enrolling your little one or learning more?", 'bot');
+                                    await this.delay(800);
+                                    await this.addMessageWithDelay("Just click below for admission details and to get in touch with us!", 'bot',jr);
+                                    await this.delay(800);
+                                    break;
+
+                                 case 'sr-kg':
+                                    this.addMissionImage("https://littlepandakids.com/images/classes/Sr%20Kg.webp", "Panda");
+                                    await this.delay(800);
+                                    await this.addMessageWithDelay("Ready for the big leap! Sr. KG is all about sharpening thinking skills, mastering literacy and numeracy, and growing independence. Activities here help kids understand time, space, and logic—preparing them for primary school and beyond.", 'bot');
+                                    await this.delay(800);
+                                    const sr = [
+         
+                                    { text: "Admission Enquiry", action: "admission", type: "primary" },
+                                    { text: "Contact Us", action: "contact", type: "primary" },
+                                    { text: "Back to Programs", action: "preschool-program", type: "secondary" }
+                                ];
+                                    await this.addMessageWithDelay("Interested in enrolling your little one or learning more?", 'bot');
+                                    await this.delay(800);
+                                    await this.addMessageWithDelay("Just click below for admission details and to get in touch with us!", 'bot',sr);
+                                    await this.delay(800);
+                                    break;
+
+                                
+
+                                
+
+                            
+
                     
                     case 'admission':
                         await this.addMessageWithDelay(`I'd be happy to help with the admission process, ${this.userName}! 🎓`, 'bot');
@@ -1101,34 +1296,63 @@ isValidEmail(email) {
                         await this.delay(800);
                         
                         const admissionButtons = [
-                            { text: "Enrollment Process", action: "enrollment" },
+                           
                             { text: "Application Form", action: "application" },
                             { text: "Schedule Visit", action: "visit" },
                             { text: "Back to Menu", action: "main-menu", type: "secondary" }
                         ];
                         await this.addMessageWithDelay("We'll guide you through every step of the process.", 'bot', admissionButtons);
                         break;
+
+                    case 'application':
+                        
+                        await this.addMessageWithDelay(`Click here to fill out our <a href="https://littlepandakids.com/contact.html" target='_blank'>Enquiry Form</a> and let us help you get started at Little Panda Preschool & Daycare!`, 'bot');
+                        await this.delay(800);
+                        const application = [
+                           
+                         
+                            { text: "Back to Admission Enquiry", action: "admission", type: "secondary" }
+                        ];
+                        await this.addMessageWithDelay("Click below to go back",'bot', application);
+                        break;
+
+                    
+                    case 'visit':
+                        await this.addMessageWithDelay(`📅 Schedule a Visit Easily!  
+You can book a visit by messaging us directly on WhatsApp.  
+<a href="https://api.whatsapp.com/send/?phone=918600600033&text=Hi%20I’d%20like%20to%20book%20a%20school%20tour&type=phone_number&app_absent=0" target='_blank'>Click here to connect on WhatsApp</a>`, 'bot');
+                        await this.delay(800);
+                         const visit = [
+                           
+                         
+                            { text: "Back to Admission Enquiry", action: "admission", type: "secondary" }
+                        ];
+                        await this.addMessageWithDelay( "Click below to go back",'bot', visit);
+                        break;
+
                     
                     case 'contact':
+                        
                         await this.addMessageWithDelay(`Here's how you can reach us, ${this.userName}! 📞`, 'bot');
                         await this.delay(800);
-                        await this.addMessageWithDelay("📍 Address: [Your Address Here]", 'bot');
+                        await this.addMessageWithDelay("📍 Address: <a href='https://maps.app.goo.gl/cQsgMJS7XYD5taoG7' target='_blank'>Click Here To View Our Location</a>", 'bot');
                         await this.delay(800);
-                        await this.addMessageWithDelay("📞 Phone: [Your Phone Number]", 'bot');
+                        await this.addMessageWithDelay("📞 Phone: +91 86006 00033 or you can <a href='https://api.whatsapp.com/send/?phone=918600600033&text&type=phone_number&app_absent=0'  target='_blank'>Click Here</a> for WhatsApp contact", 'bot');
                         await this.delay(800);
-                        await this.addMessageWithDelay("📧 Email: info@littlepanda.com", 'bot');
+                        await this.addMessageWithDelay("📧 Email: enquiry@littlepandakids.com <a href='mailto:enquiry@littlepandakids.com?subject=Preschool Admission Enquiry'  target='_blank'>Send us an Email</a>", 'bot');
                         await this.delay(800);
-                        await this.addMessageWithDelay("🕒 Hours: Mon-Fri 7:00 AM - 6:00 PM", 'bot');
+                        await this.addMessageWithDelay("🕒 Hours: Mon-Fri 8:30 AM - 7:30 PM", 'bot');
                         await this.delay(800);
-                        
-                        const contactButtons = [
-                            { text: "Call Now", action: "call-now" },
-                            { text: "Send Email", action: "send-email" },
-                            { text: "Get Directions", action: "directions" },
-                            { text: "Back to Menu", action: "main-menu", type: "secondary" }
+                         const contact = [
+                           
+                         
+                            { text: "Back to Main Menu", action: "main-menu", type: "secondary" }
                         ];
-                        await this.addMessageWithDelay("How would you like to get in touch?", 'bot', contactButtons);
+                        await this.addMessageWithDelay("To Go Back Click Below ",'bot',contact);
                         break;
+                       
+                        
+                        
                     
                     case 'faq':
                     this.currentStep = 'faq_input';
@@ -1147,7 +1371,15 @@ isValidEmail(email) {
                     break;                        
                     // Additional handlers for sub-menu items
                     case 'mission':
-                        await this.addMessageWithDelay("Our mission is to provide a safe, nurturing, and stimulating environment where children can explore, learn, and grow while developing a lifelong love of learning. 🎯", 'bot');
+                        this.addMissionImage("https://i.pinimg.com/736x/5a/46/99/5a469917d8cdb64806bdb013cd974dc5.jpg", "Panda");
+                        await this.delay(800);
+                        await this.addMessageWithDelay("We're on a mission to become edu-preneurs, and we believe that early child development is super important!", 'bot');
+                        await this.delay(800);
+                        await this.addMessageWithDelay("We think that the early years are crucial for a child's growth, and that's why we're passionate about creating a positive nurturing environment", 'bot');
+                        await this.delay(800);
+                        await this.addMessageWithDelay("That's why we created Little Panda, an Early Learning Centre that offers Premium Day Care at affordable rates and a Pre-school program that combines the best of Indian Culture and using Kreedo Curriculum to engage our children", 'bot');
+                        await this.delay(800);
+                        await this.addMessageWithDelay("We're all about giving your little ones the best possible start in life!", 'bot');
                         await this.delay(800);
                         
                         const missionButtons = [
@@ -1176,7 +1408,13 @@ isValidEmail(email) {
                     
                     
                         case 'Testimonials':
-                        await this.addMessageWithDelay("Meet the amazing team at Little Panda!🐼 Our teachers and staff are passionate about early childhood education and dedicated to providing a nurturing environment for your 👩‍👦little ones", 'bot');
+                        this.addMissionImage("https://i.pinimg.com/736x/9d/c4/ae/9dc4ae5296eb3d08328c84b20aae9bc7.jpg", "Principal");
+                        await this.delay(800);
+                        await this.addMessageWithDelay("Our parents love us! Check out what Abir's parent and Ruhaan's parent have to say about Little Panda", 'bot');
+                        await this.delay(800);
+                        await this.addMessageWithDelay("Abir's Parent: 'Such a wonderful experience for our little one! The teachers are caring, and the environment is so nurturing.'<a href='https://www.instagram.com/reel/C-ee9SjtJyZ/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA=='  target='_blank'> (Watch the video)</a>", 'bot');
+                        await this.delay(800);
+                        await this.addMessageWithDelay("Ruhaan's Parent: 'We're so impressed with the growth and development of our child at Little Panda! The staff is dedicated and passionate.'<a href='https://www.instagram.com/reel/C-ZXyJSJuFc/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA=='  target='_blank'> (Watch the video )</a>", 'bot');
                         await this.delay(800);
                         
                         const testibuttons = [
