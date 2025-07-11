@@ -1484,10 +1484,23 @@ You can book a visit by messaging us directly on WhatsApp.
     // Show options to continue asking or go back
     await this.delay(800);
     const continueButtons = [
-        { text: "Ask Another Question", action: "ask-more-faq", type: "primary" },
-        { text: "Back to Menu", action: "main-menu", type: "secondary" }
-    ];
-    await this.addMessageWithDelay("Would you like to ask another question?", 'bot', continueButtons);
+    { text: "Ask Another Question", action: "ask-more-faq", type: "primary" },
+    { text: "Back to Menu", action: "main-menu", type: "secondary" },
+    {
+        text: "Talk To Teacher",
+        action: "contact",
+        type: "secondary",
+        link: "https://api.whatsapp.com/send/?phone=918600600033&text=Hi%20I’d%20like%20to%20speak%20with%20a%20teacher&type=phone_number&app_absent=0"
+    }
+];
+
+
+await this.addMessageWithDelay(
+    "Would you like to ask another question? Or you can speak with our teacher to guide you better.",
+    'bot',
+    continueButtons
+);
+
 }
 
             async handleGeneralMessage(message) {
