@@ -1130,29 +1130,17 @@ async processMessage(message) {
     await this.delay(1200); // 1.2 second delay for natural conversation
 
     switch (this.currentStep) {
-        case 'name':
-            this.userName = message;
-            this.currentStep = 'email'; // Changed from 'phone' to 'email'
-            await this.addMessageWithDelay(`Nice to meet you, ${this.userName}! 🐼`, 'bot');
-            await this.delay(800);
-            await this.addMessageWithDelay("Could you please share your email so I can assist you better?", 'bot');
-            this.messageInput.placeholder = "Enter your email address...";
-            break;
+       case 'name':
+    this.userName = message;
+    await this.saveToGoogleSheets();
+    this.currentStep = 'main_menu';
+    //  
+    await this.delay(800);
+    this.hideInput();
+    this.showMainMenu();
+    break;
         
-        case 'email': // Changed from 'phone' to 'email'
-            if (this.isValidEmail(message)) {
-                this.userEmail = message; // Changed from userPhone to userEmail
-                await this.saveToGoogleSheets();
-                this.currentStep = 'main_menu';
-                // await this.addMessageWithDelay("Thank you! Your information has been saved. 📧", 'bot');
-                // await this.delay(800);
-                 this.hideInput();
-                this.showMainMenu();
-            } else {
-                await this.addMessageWithDelay("❌ Invalid email format. Please enter a valid email address (e.g., name@example.com)", 'bot');
-                // Keep the current step as 'email' to ask again
-            }
-            break;
+       
         
         case 'main_menu':
             // Handle general conversation in main menu
@@ -1176,41 +1164,30 @@ async addMessageWithDelay(content, sender, buttons = null) {
 
 async saveToGoogleSheets() {
     try {
-       
+        console.log('Attempting to save:', this.userName);
         
         const formData = new FormData();
         formData.append('name', this.userName);
-        formData.append('email', this.userEmail); // Changed from 'phone' to 'email'
         
-        // Create formatted date and time
-        const now = new Date();
-        const date = now.toLocaleDateString('en-GB'); // DD/MM/YYYY format
-        const time = now.toLocaleTimeString('en-GB', { hour12: false }); // HH:MM:SS format
-        
-        formData.append('date', date);
-        formData.append('time', time);
+        // Add debug logging
+        console.log('FormData created with name:', this.userName);
         
         const response = await fetch(this.googleSheetsURL, {
             method: 'POST',
             body: formData
         });
 
+        console.log('Response status:', response.status);
+        console.log('Response ok:', response.ok);
+        
         if (response.ok) {
-            // this.updateApiStatus('Saved ✓');
-            console.log('Data saved to Google Sheets successfully');
-        } else {
-            // this.updateApiStatus('Save Error');
-            console.error('Failed to save to Google Sheets');
+            const result = await response.text();
+            console.log('Response text:', result);
         }
+        
     } catch (error) {
-        // this.updateApiStatus('Save Error');
         console.error('Error saving to Google Sheets:', error);
     }
-    
-    // Reset status after 3 seconds
-    // setTimeout(() => {
-    //     this.updateApiStatus('Online');
-    // }, 3000);
 }
 
 async showMainMenu(isReturning = false) {
