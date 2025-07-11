@@ -25,6 +25,43 @@
     cursor: pointer;
     transition: transform 0.3s ease;
 }
+/* Popup Message Styles */
+.popup-message {
+    position: fixed;
+    bottom: 100px; /* Position above the chat button */
+    right: 20px;
+    background: linear-gradient(135deg, #98cc54, #6FA86F);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 4px 20px rgba(79, 145, 83, 0.4);
+    z-index: 999;
+    opacity: 0;
+    transform: translateY(10px) scale(0.9);
+    transition: all 0.3s ease;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.popup-message.show {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.popup-message::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    right: 20px;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid #98cc54;
+}
 
 .team-image:hover {
     transform: scale(1.05);
@@ -674,6 +711,7 @@
     
 
     <div class="chatbot-widget">
+        <div class="popup-message" id="popupMessage">Hello! 👋</div>
         <button class="chat-button" id="chatButton">
             🐼
         </button>
@@ -724,6 +762,23 @@
 
     <script>
         class PandaBot {
+
+            // Add these methods inside your PandaBot class
+showPopup(message = "Hello! 👋", duration = 3000) {
+    const popup = document.getElementById('popupMessage');
+    popup.textContent = message;
+    popup.classList.add('show');
+    
+    // Auto-hide after duration
+    setTimeout(() => {
+        this.hidePopup();
+    }, duration);
+}
+
+hidePopup() {
+    const popup = document.getElementById('popupMessage');
+    popup.classList.remove('show');
+}
 
 addMissionImage(imageUrl, altText = 'Mission Image') {
     const messageDiv = document.createElement('div');
@@ -819,6 +874,12 @@ closeImageModal() {
                 this.messageQueue = [];
                 this.isProcessing = false;
                 this.setCurrentYear();
+                this.popupMessage = document.getElementById('popupMessage');
+    
+    // Show popup after page loads
+    setTimeout(() => {
+        this.showPopup("Hello! Need help? 🐼", 4000);
+    }, 2000);
                 
                 // Google Sheets API URL - REPLACE WITH YOUR ACTUAL GOOGLE SHEETS API URL
                 this.googleSheetsURL = 'https://script.google.com/macros/s/AKfycbxd5WNZjj-mKcUUV6sWTyNY-Hi6YFcMMxl0cW2Q0XVCoIDv8ObmcU92DWcOHvmlAy_tvg/exec';
@@ -854,6 +915,7 @@ closeImageModal() {
                     }
                 });
                 
+                
                 // Close chat when clicking outside
                 // Close chat when clicking outside
 document.addEventListener('click', (e) => {
@@ -871,6 +933,7 @@ document.addEventListener('click', (e) => {
             }
 
             toggleChat() {
+                this.hidePopup();
                 if (this.isOpen) {
                     this.closeChat();
                 } else {
@@ -1528,7 +1591,7 @@ await this.addMessageWithDelay(
                 
                 const avatar = document.createElement('div');
                 avatar.className = 'message-avatar';
-                avatar.textContent = sender === 'bot' ? '🐼' : '👤';
+                avatar.textContent = sender === 'bot' ? '🐼' : '👩‍👦';
                 
                 const messageContent = document.createElement('div');
                 messageContent.className = 'message-content';
